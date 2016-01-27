@@ -1,5 +1,4 @@
 export default {
-	scale:3,
-	width:512,
-	height:384
+	width:180,
+	height:144
 }
