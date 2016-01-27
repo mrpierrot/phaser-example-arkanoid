@@ -1,0 +1,73 @@
+{
+  "name": "phaser-example-arkanoid",
+  "version": "0.0.1",
+  "author": "Pierre Chabiland <pierre@casusludi.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrpierrot/phaser-example-arkanoid.git"
+  },
+  "project": {
+    "index": "/index.html",
+    "source": "./src",
+    "build": "./build",
+    "bundle": {
+      "main": "/game/index.js",
+      "dest": "/game/bundle.js",
+      "assets": "/game/assets"
+    },
+    "server": {
+      "port": 1983,
+      "livereload-port": 35729
+    }
+  },
+  "license": "GPL-3.0",
+  "browser": {
+    "phaser": "./node_modules/phaser/build/phaser.min.js"
+  },
+  "browserify-shim": {
+    "phaser": {
+      "exports": "Phaser"
+    }
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim",
+      [
+        "babelify",
+        {
+          "presets": [
+            "es2015"
+          ],
+          "ignore":"./node_modules/"
+        }
+      ]
+    ]
+  },
+  "dependencies": {
+    "phaser": "^2.4.3",
+    "lodash": "^3.10.1"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.1.18",
+    "babelify": "^7.2.0",
+    "browserify": "^11.1.0",
+    "browserify-shim": "^3.8.10",
+    "del": "^2.0.2",
+    "gulp": "^3.9.0",
+    "gulp-connect": "^2.2.0",
+    "gulp-gzip": "^1.2.0",
+    "gulp-if": "^2.0.0",
+    "gulp-livereload": "^3.8.0",
+    "gulp-plumber": "^1.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-template": "^3.0.0",
+    "gulp-uglify": "^1.4.1",
+    "gulp-util": "^3.0.6",
+    "minimist": "^1.2.0",
+    "run-sequence": "^1.1.3",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.4.0"
+  }
+}
