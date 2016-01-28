@@ -25,10 +25,13 @@ export default class GameState extends Phaser.State {
 
 		this.game.world.scale.setTo(config.scale,config.scale);
 
-		const ball = new Ball(this.game,8,8,'ball');
+		this.game.physics.startSystem(Phaser.Physics.ARCADE);
+		//this.game.physics.arcade.gravity.y = 100;
+
+		this.ball = new Ball(this.game,8,8,'ball');
 		const bar = new Bar(this.game, 16, 8, 'bar');
 		const brick = new Brick(this.game, 64, 8, 'brick');
-		this.game.stage.addChild(ball);	
+		this.game.stage.addChild(this.ball);	
 		this.game.stage.addChild(bar);	
 		this.game.stage.addChild(brick);	
 	}
