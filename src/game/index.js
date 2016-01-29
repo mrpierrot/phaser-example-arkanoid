@@ -9,7 +9,7 @@ import config from './config.js';
 
 console.log('%c'+name+' v'+version,'background: #222; color: #bada55;padding: 10px;');
 
-const game = new Phaser.Game(config.width, config.height, Phaser.CANVAS, kebabCase(name), null ,false,true); 
+const game = new Phaser.Game(config.width, config.height, Phaser.AUTO, kebabCase(name), null ,false,false); 
 
 forEach(states,(state, stateId) => game.state.add(stateId, state));
 

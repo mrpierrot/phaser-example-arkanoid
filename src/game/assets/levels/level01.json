@@ -1,9 +1,14 @@
 {
 	"raw":[
 		"               ",
+		"               ",
+		"    XXXXXXX    ",
 		"   XXXXXXXXX   ",
-		"   XXX   XXX   ",
-		"   XXXXXXXXX   ",
-		"      XXX      "
+		"   X XXXXX X   ",
+		"   X XXXXX X   ",
+		"   XXXX XXXX   ",
+		"     XXXXX     ",
+		"     X X X     ",
+		"     X X X     "
 	]
 }

@@ -28,10 +28,11 @@ export default class GameState extends Phaser.State {
 	preload() {
 
 		this.game.load.image('mosaic','game/assets/mosaic.png');
+		this.game.load.image('brick-dust','game/assets/brick-dust.png');
   		this.game.load.image('ball','game/assets/ball.png');
   		this.game.load.image('bar','game/assets/bar.png');
   		this.game.load.image('brick','game/assets/brick.png');
-  		this.game.load.json('level01','game/assets/levels/level01.json');
+  		this.game.load.json('level01','game/assets/levels/level01.json'); 
 
 	}
 
@@ -151,7 +152,7 @@ export default class GameState extends Phaser.State {
 	}
 
 	_breakBrick(ball,brick){
-		brick.kill();
+		brick.destruct();
 		return true;
 	}
 
