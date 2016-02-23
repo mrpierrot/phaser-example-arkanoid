@@ -36,7 +36,6 @@
         "babelify",
         {
           "presets": [
-            "es2015"
           ],
           "ignore": "./node_modules/"
         }
