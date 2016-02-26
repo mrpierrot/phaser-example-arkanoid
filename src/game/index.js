@@ -6,6 +6,20 @@ var GAME_BALL_RELEASED = "game_ball_released";
 var GAME_OVER = "game_over";
 var SCALE = 3;
 
+WebFontConfig = {
+
+    //  'active' means all requested fonts have finished loading
+    //  We set a 1 second delay before calling 'createText'.
+    //  For some reason if we don't the browser cannot render the text the first time it's created.
+    active: function() { game.time.events.add(Phaser.Timer.SECOND, _createTexts, this); },
+
+    //  The Google Fonts we want to load (specify as many as you like in the array)
+    google: {
+      families: ['Pacifico']
+    }
+
+};
+
 
 var game = new Phaser.Game(240*SCALE, 200*SCALE, Phaser.AUTO, "phaser-workshop", {
 	preload:_preload,
@@ -19,10 +33,13 @@ var ball =null,
 	bricks = null,
 	state = null,
 	cursor = null,
+	lives = 3,
+	livesText = null,
 	ballSpeed = 600;
 
 
 function _preload() {
+	game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
 	game.load.image('mosaic','game/assets/mosaic.png');
 	game.load.image('brick-dust','game/assets/brick-dust.png');
 	game.load.image('ball','game/assets/ball.png');
@@ -38,14 +55,14 @@ function _create() {
 
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 
+	game.physics.arcade.checkCollision.down = false;
+
 	ball = _createBall(0,0);
 	bar = _createBar();
 	bricks = game.add.group();
 	bricks.enableBody = true;
 	bricks.physicsBodyType = Phaser.Physics.ARCADE;
 	
-	game.world.add(bar);	
-
 
 
 	cursor = game.input.keyboard.createCursorKeys();
@@ -56,6 +73,10 @@ function _create() {
 	_reset();
 
 	
+}
+
+function _createTexts(){
+	livesText = game.add.text(20, 10, 'Lives : '+lives, { font: "30px 'Pacifico'", fill: "#ffffff", align: "left" });
 }
 
 function _update() { 
@@ -91,6 +112,7 @@ function _createBall(x,y){
 	game.physics.enable(ball,Phaser.Physics.ARCADE);
 	ball.body.collideWorldBounds = true;
 	ball.body.bounce.set(1);
+	ball.events.onOutOfBounds.add(_ballLost, this);
 	return ball;
 }
 
@@ -100,6 +122,12 @@ function _launchBall(angle){
 		Math.sin(angle) * ballSpeed
 	);
 
+}
+
+function _ballLost(){
+	lives--;
+	livesText.text = 'Lives : '+lives;
+	_reset();
 }
 
 function _createBar(x,y){
@@ -151,6 +179,7 @@ function _reset(){
 	bar.y = game.world.height - bar.height - 10;
 	ball.y = bar.y-ball.height;
 	ball.x = bar.x+(bar.width-ball.width)*0.5;
+	ball.body.velocity.setTo(0);
 	state  = GAME_READY;
 }
 
