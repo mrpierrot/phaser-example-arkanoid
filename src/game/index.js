@@ -5,14 +5,11 @@ var GAME_READY = "game_ready";
 var GAME_BALL_RELEASED = "game_ball_released";
 var GAME_OVER = "game_over";
 var SCALE = 3;
+var MAX_LIVES = 3;
 
 WebFontConfig = {
 
-    //  'active' means all requested fonts have finished loading
-    //  We set a 1 second delay before calling 'createText'.
-    //  For some reason if we don't the browser cannot render the text the first time it's created.
-    active: function() { game.time.events.add(Phaser.Timer.SECOND, _createTexts, this); },
-
+    active: _createTexts,
     //  The Google Fonts we want to load (specify as many as you like in the array)
     google: {
       families: ['Pacifico']
@@ -21,19 +18,20 @@ WebFontConfig = {
 };
 
 
-var game = new Phaser.Game(240*SCALE, 200*SCALE, Phaser.AUTO, "phaser-workshop", {
+var game = new Phaser.Game(224*SCALE, 192*SCALE, Phaser.AUTO, "phaser-workshop", {
 	preload:_preload,
 	create:_create,
 	update:_update
 } ,false,false); 
 
 
-var ball =null,
+var currentLevel = 'level01',
+	ball =null,
 	bar = null,
 	bricks = null,
 	state = null,
 	cursor = null,
-	lives = 3,
+	lives = MAX_LIVES,
 	livesText = null,
 	ballSpeed = 600;
 
@@ -41,10 +39,17 @@ var ball =null,
 function _preload() {
 	game.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
 	game.load.image('mosaic','game/assets/mosaic.png');
-	game.load.image('brick-dust','game/assets/brick-dust.png');
+	game.load.image('brick-dust01','game/assets/brick-dust01.png');
+	game.load.image('brick-dust02','game/assets/brick-dust02.png');
+	game.load.image('brick-dust03','game/assets/brick-dust03.png');
+	game.load.image('brick-dust04','game/assets/brick-dust04.png');
 	game.load.image('ball','game/assets/ball.png');
 	game.load.image('bar','game/assets/bar.png');
-	game.load.image('brick','game/assets/brick.png');
+	game.load.image('brick01','game/assets/brick01.png');
+	game.load.image('brick02','game/assets/brick02.png');
+	game.load.image('brick03','game/assets/brick03.png');
+	game.load.image('brick04','game/assets/brick04.png');
+	game.load.image('background','game/assets/background.png');
 	game.load.json('level01','game/assets/levels/level01.json'); 
 }
 
@@ -56,6 +61,10 @@ function _create() {
 	game.physics.startSystem(Phaser.Physics.ARCADE);
 
 	game.physics.arcade.checkCollision.down = false;
+
+
+	var background = game.add.tileSprite(0, 0, game.width/SCALE, game.height/SCALE, 'background');
+	background.scale.set(SCALE);
 
 	ball = _createBall(0,0);
 	bar = _createBar();
@@ -69,7 +78,7 @@ function _create() {
 	game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR).onDown.add(_start,this);
 
 
-	_loadLevel('level01');
+	_loadLevel(currentLevel);
 	_reset();
 
 	
@@ -128,6 +137,19 @@ function _ballLost(){
 	lives--;
 	livesText.text = 'Lives : '+lives;
 	_reset();
+	if(lives <= 0){
+		lives = MAX_LIVES;
+		livesText.text = 'Lives : '+lives;
+		_loadLevel(currentLevel);
+		var gameOverText = game.add.text(game.width*0.5, game.height*0.5, 'Game Over', { font: "60px 'Pacifico'", fill: "#ffffff", align: "center" });
+		gameOverText.anchor.set(0.5);
+		game.add.tween(gameOverText)
+		.to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true,2000)
+		.onComplete.add(function(){
+			gameOverText.destroy();
+		});
+
+	}
 }
 
 function _createBar(x,y){
@@ -142,18 +164,17 @@ function _createBar(x,y){
 
 
 function _loadLevel(name){
-		bricks.removeChildren();
+		bricks.removeAll();
 		var json = game.cache.getJSON(name);
 		var brickWidth = 16*SCALE,
 			brickHeight = 8*SCALE;
-
 		for (var y = 0,h=json.raw.length;y<h;y++) {
 			var line = json.raw[y];
 			for (var x = 0,w=line.length;x<w;x++) {
 				var tile = line.charAt(x);
 				switch(tile){
 					case "X":
-						var brick = new Brick(game, x*brickWidth, y*brickHeight, 'brick');
+						var brick = new Brick(game, x*brickWidth, y*brickHeight, (parseInt(Math.random()*4)+1));
 						bricks.add(brick);
 
 					break;
@@ -185,6 +206,15 @@ function _reset(){
 
 function _breakBrick(ball,brick){
 	brick.destruct();
+	if(bricks.length <= 0){
+		var winText = game.add.text(game.width*0.5, game.height*0.5, 'You win !!!', { font: "60px 'Pacifico'", fill: "#ffffff", align: "center" });
+		winText.anchor.set(0.5);
+		game.add.tween(winText)
+		.to( { alpha: 0 }, 500, Phaser.Easing.Linear.None, true,2000)
+		.onComplete.add(function(){
+			winText.destroy();
+		});
+	}
 	return true;
 }
 
@@ -211,8 +241,9 @@ function _reflect(bar, ball) {
 /********************** Brick **********************/
 /***************************************************/
 
-var Brick = function(game,x,y,asset){
-		Phaser.Sprite.call(this,game,x,y,asset);
+var Brick = function(game,x,y,index){
+		Phaser.Sprite.call(this,game,x,y,'brick0'+index);
+		this.index = index;
 		this.game.physics.enable(this,Phaser.Physics.ARCADE);
 		this.body.immovable = true;
 		this.scale.set(SCALE);
@@ -223,12 +254,12 @@ var p = Brick.prototype = Object.create(Phaser.Sprite.prototype);
 
 	p.destruct = function(){
 		this.events.onKilled.addOnce(this._onKillHandler,this);
-		this.kill();
+		this.destroy();
 	}
 
 	p._onKillHandler = function(){
 		var emitter = this.game.add.emitter(0, 0, 100);
-	    emitter.makeParticles('brick-dust');
+	    emitter.makeParticles('brick-dust0'+this.index);
 	    emitter.x = this.x+this.width*0.5;
 	    emitter.y = this.y+this.height*0.5;
 	    emitter.minParticleSpeed.setTo(-50*SCALE, -50*SCALE);
