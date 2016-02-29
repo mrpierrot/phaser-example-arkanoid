@@ -9,7 +9,7 @@ var MAX_LIVES = 3;
 
 WebFontConfig = {
 
-    active: _createTexts,
+    active: function() { game.time.events.add(Phaser.Timer.SECOND, _createTexts, this); },
     //  The Google Fonts we want to load (specify as many as you like in the array)
     google: {
       families: ['Pacifico']
@@ -33,7 +33,8 @@ var currentLevel = 'level01',
 	cursor = null,
 	lives = MAX_LIVES,
 	livesText = null,
-	ballSpeed = 600;
+	ballSpeed = 600,
+	brickCount = 0;
 
 
 function _preload() {
@@ -168,6 +169,7 @@ function _loadLevel(name){
 		var json = game.cache.getJSON(name);
 		var brickWidth = 16*SCALE,
 			brickHeight = 8*SCALE;
+		brickCount = 0;
 		for (var y = 0,h=json.raw.length;y<h;y++) {
 			var line = json.raw[y];
 			for (var x = 0,w=line.length;x<w;x++) {
@@ -176,6 +178,7 @@ function _loadLevel(name){
 					case "X":
 						var brick = new Brick(game, x*brickWidth, y*brickHeight, (parseInt(Math.random()*4)+1));
 						bricks.add(brick);
+						brickCount++;
 
 					break;
 				}
@@ -206,7 +209,8 @@ function _reset(){
 
 function _breakBrick(ball,brick){
 	brick.destruct();
-	if(bricks.length <= 0){
+	brickCount--;
+	if(brickCount <= 0){
 		var winText = game.add.text(game.width*0.5, game.height*0.5, 'You win !!!', { font: "60px 'Pacifico'", fill: "#ffffff", align: "center" });
 		winText.anchor.set(0.5);
 		game.add.tween(winText)
@@ -254,7 +258,7 @@ var p = Brick.prototype = Object.create(Phaser.Sprite.prototype);
 
 	p.destruct = function(){
 		this.events.onKilled.addOnce(this._onKillHandler,this);
-		this.destroy();
+		this.kill();
 	}
 
 	p._onKillHandler = function(){
